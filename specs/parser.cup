@@ -116,12 +116,16 @@ non terminal            constante_simbolica;
 non terminal            programa_general;
 non terminal 			declaracion;
 non terminal			tipo;
+non terminal			asignacion;
+non terminal			operador;
+non terminal			operacion;
+non terminal 			dcha_operacion;
 // ...
 
 
 // Declaracion de relaciones de precedencia
 precedence left     PLUS,
-                    MINUS;
+                    PRODUCT;
 // ...
 
 // Declaración de reglas de produccion
@@ -149,6 +153,7 @@ mainFunction ::= VOID MAIN PARENTESISIZQ PARENTESISDCH LLAVEIZQ sentences RETURN
 sentences ::= sentences printString 
             | sentences printInt 
             | sentences declaracion
+            | sentences asignacion
             | epsilon;
 
 printString ::= WRITE PARENTESISIZQ STRING PARENTESISDCH PUNTOCOMA 
@@ -159,8 +164,30 @@ printInt ::= WRITEINT PARENTESISIZQ NUM PARENTESISDCH PUNTOCOMA
 
 declaracion ::= tipo ID PUNTOCOMA;
 
+asignacion ::= ID ASSIGN operacion PUNTOCOMA
+             | ID ASSIGN NUM PUNTOCOMA 
+             | ID ASSIGN ID AUTOINCREMENT PUNTOCOMA
+             | ID AUTOINCREMENT PUNTOCOMA
+             | ID ASSIGNWITHSUM NUM PUNTOCOMA;
+
+operacion ::= NUM dcha_operacion
+			| ID dcha_operacion
+            | PARENTESISIZQ operacion PARENTESISDCH
+			| PARENTESISIZQ operacion PARENTESISDCH dcha_operacion
+			| PARENTESISIZQ operacion dcha_operacion PARENTESISDCH;
+
+
+dcha_operacion ::= operador NUM dcha_operacion
+			     | operador ID dcha_operacion
+			     | operador PARENTESISIZQ NUM dcha_operacion PARENTESISDCH
+			     | operador PARENTESISIZQ ID dcha_operacion PARENTESISDCH
+                 | operador NUM
+			     | operador ID;
+
 constante_simbolica ::= CTE ID NUM PUNTOCOMA;
 
 tipo ::= INT | VOID;
+
+operador ::= PLUS | PRODUCT;
 
 epsilon ::= ;
