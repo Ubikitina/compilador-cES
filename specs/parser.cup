@@ -1,0 +1,166 @@
+// ******************************************
+// * parser.cup
+// * Asignatura: Procesadores de lenguajes 1
+// * Autor: Ubikitina
+// * Curso: 2021-2022
+// ******************************************
+
+package compiler.syntax;
+
+// Declaracion de importaciones 
+//(No modificar las proporcionadas. Se pueden agregar mas)
+
+import java_cup.runtime.Symbol;
+import java.util.*;
+
+import es.uned.lsi.compiler.lexical.*;
+import es.uned.lsi.compiler.code.*;
+import es.uned.lsi.compiler.intermediate.*;
+import es.uned.lsi.compiler.semantic.*;
+import es.uned.lsi.compiler.semantic.symbol.*;
+import es.uned.lsi.compiler.semantic.type.*;
+import es.uned.lsi.compiler.syntax.*;
+
+import compiler.CompilerContext;
+import compiler.lexical.*;
+import compiler.syntax.nonTerminal.*;
+
+import compiler.semantic.symbol.*;
+import compiler.semantic.type.*;
+import compiler.intermediate.*;
+import compiler.code.*;
+
+// Declaracion del codigo de usuario
+
+action code {:
+	
+	SyntaxErrorManager   syntaxErrorManager   = CompilerContext.getSyntaxErrorManager();
+	SemanticErrorManager semanticErrorManager = CompilerContext.getSemanticErrorManager ();
+	ScopeManagerIF       scopeManager         = CompilerContext.getScopeManager ();
+	FinalCodeFactoryIF   finalCodeFactory     = CompilerContext.getFinalCodeFactory ();
+
+:}	
+
+parser code {:
+	SyntaxErrorManager syntaxErrorManager = CompilerContext.getSyntaxErrorManager();
+	
+	public void syntax_error(Symbol symbol)
+	{ 
+	    Token token = (Token) symbol.value;
+	    syntaxErrorManager.syntaxError ("Error sintactico", token);	    
+	}
+		
+	public void unrecovered_syntax_error(java_cup.runtime.Symbol symbol)
+	{	
+	    Token token = (Token) symbol.value;
+	    syntaxErrorManager.syntaxFatalError ("Error fatal", token);
+	}
+:}
+
+// Declaracion de terminales
+
+terminal Token PLUS;
+terminal Token MINUS;
+terminal Token NUM;
+terminal Token ID;
+terminal Token PARENTESISIZQ;
+terminal Token PARENTESISDCH;
+terminal Token LLAVEIZQ;
+terminal Token LLAVEDCH;
+terminal Token PUNTOCOMA;
+terminal Token CASE;
+terminal Token CONSTANT;
+terminal Token BREAK;
+terminal Token INT;
+terminal Token WRITE;
+terminal Token WRITEINT;
+terminal Token ALTERNATIVE;
+terminal Token WHILE;
+terminal Token DEFAULT;
+terminal Token MAIN;
+terminal Token RETURN;
+terminal Token IF;
+terminal Token ELSE;
+terminal Token TYPE;
+terminal Token VOID;
+terminal Token PRODUCT;
+terminal Token MINOR;
+terminal Token EQUAL;
+terminal Token AND;
+terminal Token NOT;
+terminal Token AUTOINCREMENT;
+terminal Token ASSIGN;
+terminal Token ASSIGNWITHSUM;
+terminal Token CORCHETEIZQ;
+terminal Token CORCHETEDCH;
+terminal Token STRING;
+terminal Token DOSPUNTOS;
+terminal Token COMA;
+terminal Token VECT;
+terminal Token CTE;
+
+
+
+// Declaracion de no terminales
+// no modificar los propuestos
+
+non terminal  			program;
+non terminal Axiom		axiom;
+
+non terminal            mainFunction;
+non terminal            sentences;
+non terminal            printString;
+non terminal            printInt;
+non terminal            epsilon;
+non terminal            constante_simbolica;
+non terminal            programa_general;
+non terminal 			declaracion;
+non terminal			tipo;
+// ...
+
+
+// Declaracion de relaciones de precedencia
+precedence left     PLUS,
+                    MINUS;
+// ...
+
+// Declaración de reglas de produccion
+
+
+start with program;
+
+program ::= 
+  {: 
+        syntaxErrorManager.syntaxInfo ("Starting parsing..."); 
+   :}
+  axiom:ax
+  {:   		
+  		
+  		syntaxErrorManager.syntaxInfo ("Parsing process ended.");
+   :};
+
+
+axiom ::= programa_general;
+
+programa_general ::= constante_simbolica programa_general | mainFunction;
+
+mainFunction ::= VOID MAIN PARENTESISIZQ PARENTESISDCH LLAVEIZQ sentences RETURN PUNTOCOMA LLAVEDCH;
+
+sentences ::= sentences printString 
+            | sentences printInt 
+            | sentences declaracion
+            | epsilon;
+
+printString ::= WRITE PARENTESISIZQ STRING PARENTESISDCH PUNTOCOMA 
+              | WRITE PARENTESISIZQ ID PARENTESISDCH PUNTOCOMA;
+
+printInt ::= WRITEINT PARENTESISIZQ NUM PARENTESISDCH PUNTOCOMA 
+           | WRITEINT PARENTESISIZQ ID PARENTESISDCH PUNTOCOMA;
+
+declaracion ::= tipo ID PUNTOCOMA;
+
+constante_simbolica ::= CTE ID NUM PUNTOCOMA;
+
+tipo ::= INT | VOID;
+
+epsilon ::= ;
