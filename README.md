@@ -3,3 +3,5 @@ Práctica de la asignatura Procesadores del Lenguaje I de la Universidad Naciona
 
 # Tabla de Contenido
 TBD
+# Bibliografía
+Aho, A., Lam, M., Sethi, R., & Ullman, J. (2008). Compiladores (2nd ed.). Pearson Educación.
