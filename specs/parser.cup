@@ -117,7 +117,7 @@ non terminal            programa_general;
 non terminal 			declaracion;
 non terminal			tipo;
 non terminal			asignacion;
-non terminal			operador;
+non terminal			operador_aritmetico;
 non terminal			expresionAritmetica;
 non terminal			function;
 non terminal			parametros_function;
@@ -125,6 +125,12 @@ non terminal			parametros_llamada;
 non terminal			aux_declaracion;
 non terminal			expresionLogica;
 non terminal			if;
+non terminal			bloque;
+non terminal			una_sentencia;
+non terminal			mientras;
+non terminal			alternativa;
+non terminal			casos;
+non terminal			operador_logico;
 // ...
 
 
@@ -165,23 +171,33 @@ programa_general ::= constante_simbolica programa_general
 				   | function programa_general
 				   | mainFunction;
 
-mainFunction ::= VOID MAIN PARENTESISIZQ PARENTESISDCH LLAVEIZQ sentencias LLAVEDCH;
+mainFunction ::= VOID MAIN PARENTESISIZQ PARENTESISDCH bloque;
 
-function ::= tipo ID PARENTESISIZQ parametros_function PARENTESISDCH LLAVEIZQ sentencias LLAVEDCH
-		   | tipo ID PARENTESISIZQ PARENTESISDCH LLAVEIZQ sentencias LLAVEDCH;
+function ::= tipo ID PARENTESISIZQ parametros_function PARENTESISDCH bloque
+		   | tipo ID PARENTESISIZQ PARENTESISDCH bloque;
 
 parametros_function ::= parametros_function COMA tipo ID
 					  | tipo ID;
 
-sentencias ::= sentencias printString 
-             | sentencias printInt 
-             | sentencias declaracion
-             | sentencias asignacion
-             | sentencias expresionAritmetica PUNTOCOMA
-             | sentencias expresionLogica PUNTOCOMA
-             | sentencias if
-		 	 | sentencias RETURN PUNTOCOMA
-		 	 | sentencias RETURN ID PUNTOCOMA
+bloque ::= bloque LLAVEIZQ sentencias bloque sentencias LLAVEDCH
+		 | LLAVEIZQ sentencias bloque sentencias LLAVEDCH
+		 | bloque LLAVEIZQ sentencias LLAVEDCH
+		 | LLAVEIZQ sentencias LLAVEDCH;
+					  
+una_sentencia ::= printString 
+             | printInt 
+             | declaracion
+             | asignacion
+             | expresionAritmetica PUNTOCOMA
+             | expresionLogica PUNTOCOMA
+             | if
+             | mientras
+             | alternativa
+		 	 | RETURN PUNTOCOMA
+		 	 | RETURN expresionAritmetica PUNTOCOMA
+		 	 | RETURN expresionLogica PUNTOCOMA;
+
+sentencias ::= sentencias una_sentencia
              | epsilon;
 
 printString ::= WRITE PARENTESISIZQ STRING PARENTESISDCH PUNTOCOMA 
@@ -212,7 +228,7 @@ parametros_llamada ::= parametros_llamada COMA expresionAritmetica
                      | expresionLogica
                      | STRING;
 
-expresionAritmetica ::= expresionAritmetica operador expresionAritmetica
+expresionAritmetica ::= expresionAritmetica operador_aritmetico expresionAritmetica
 					  | PARENTESISIZQ expresionAritmetica PARENTESISDCH
 					  | ID PARENTESISIZQ parametros_llamada PARENTESISDCH
 					  | ID PARENTESISIZQ PARENTESISDCH
@@ -220,19 +236,37 @@ expresionAritmetica ::= expresionAritmetica operador expresionAritmetica
 					  | ID
 					  | NUM;
 
-expresionLogica ::= expresionAritmetica EQUAL expresionAritmetica
-				  | expresionAritmetica MINOR expresionAritmetica
-				  | expresionAritmetica AND expresionAritmetica
-				  | NOT expresionAritmetica;
+expresionLogica ::= expresionAritmetica operador_logico expresionAritmetica
+				  | expresionLogica operador_logico expresionLogica
+				  | expresionAritmetica operador_logico expresionLogica
+				  | expresionLogica operador_logico expresionAritmetica
+				  | PARENTESISIZQ expresionLogica PARENTESISDCH
+				  | NOT expresionAritmetica
+				  | NOT expresionLogica;
 
-if ::= IF PARENTESISIZQ expresionLogica PARENTESISDCH LLAVEIZQ sentencias LLAVEDCH ELSE LLAVEIZQ sentencias LLAVEDCH
-	 | IF PARENTESISIZQ expresionLogica PARENTESISDCH LLAVEIZQ sentencias LLAVEDCH;
+if ::= IF PARENTESISIZQ expresionLogica PARENTESISDCH bloque ELSE bloque
+	 | IF PARENTESISIZQ expresionLogica PARENTESISDCH bloque
+	 | IF PARENTESISIZQ expresionLogica PARENTESISDCH una_sentencia
+	 | IF PARENTESISIZQ expresionLogica PARENTESISDCH una_sentencia ELSE una_sentencia;
+	 
+mientras ::= WHILE PARENTESISIZQ expresionLogica PARENTESISDCH bloque
+		   | WHILE PARENTESISIZQ expresionLogica PARENTESISDCH una_sentencia;
 
+alternativa ::= ALTERNATIVE PARENTESISIZQ expresionAritmetica PARENTESISDCH LLAVEIZQ casos DEFAULT DOSPUNTOS bloque BREAK PUNTOCOMA LLAVEDCH
+			  | ALTERNATIVE PARENTESISIZQ expresionAritmetica PARENTESISDCH LLAVEIZQ casos DEFAULT DOSPUNTOS una_sentencia BREAK PUNTOCOMA LLAVEDCH
+			  | ALTERNATIVE PARENTESISIZQ expresionAritmetica PARENTESISDCH LLAVEIZQ casos LLAVEDCH;
+
+casos ::= casos CASE NUM DOSPUNTOS bloque BREAK PUNTOCOMA
+		| casos CASE NUM DOSPUNTOS una_sentencia BREAK PUNTOCOMA
+		| CASE NUM DOSPUNTOS bloque BREAK PUNTOCOMA
+		| CASE NUM DOSPUNTOS una_sentencia BREAK PUNTOCOMA;
 					  
 constante_simbolica ::= CTE ID NUM PUNTOCOMA;
 
 tipo ::= INT | VOID;
 
-operador ::= PLUS | PRODUCT;
+operador_aritmetico ::= PLUS | PRODUCT;
+
+operador_logico ::= EQUAL | MINOR | AND;
 
 epsilon ::= ;
