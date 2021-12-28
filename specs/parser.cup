@@ -119,11 +119,11 @@ non terminal			tipo;
 non terminal			asignacion;
 non terminal			operador;
 non terminal			expresionAritmetica;
-non terminal 			dcha_expresionAritmetica;
 non terminal			function;
 non terminal			parametros_function;
 non terminal			parametros_llamada;
 non terminal			aux_declaracion;
+non terminal			expresionLogica;
 // ...
 
 
@@ -193,37 +193,34 @@ declaracion ::= tipo ID PUNTOCOMA
 
 aux_declaracion ::= COMA ID aux_declaracion
 				  | COMA ID
+				  | COMA ID ASSIGN NUM aux_declaracion
 				  | COMA ID ASSIGN NUM;
 
 asignacion ::= ID ASSIGN expresionAritmetica PUNTOCOMA
-             | ID ASSIGN NUM PUNTOCOMA 
-             | ID ASSIGN ID PUNTOCOMA
-             | ID ASSIGN ID AUTOINCREMENT PUNTOCOMA
-             | ID ASSIGN ID PARENTESISIZQ parametros_llamada PARENTESISDCH PUNTOCOMA
+			 | ID ASSIGN expresionLogica PUNTOCOMA
              | ID AUTOINCREMENT PUNTOCOMA
              | ID ASSIGNWITHSUM NUM PUNTOCOMA;
              
-parametros_llamada ::= parametros_llamada COMA ID
-                     | parametros_llamada COMA NUM
+parametros_llamada ::= parametros_llamada COMA expresionAritmetica
+                     | parametros_llamada COMA expresionLogica
                      | parametros_llamada COMA STRING
-                     | ID
-                     | NUM
+                     | expresionAritmetica
+                     | expresionLogica
                      | STRING;
 
-expresionAritmetica ::= NUM dcha_expresionAritmetica
-					  | ID dcha_expresionAritmetica
-            		  | PARENTESISIZQ expresionAritmetica PARENTESISDCH
-					  | PARENTESISIZQ expresionAritmetica PARENTESISDCH dcha_expresionAritmetica
-					  | PARENTESISIZQ expresionAritmetica dcha_expresionAritmetica PARENTESISDCH;
+expresionAritmetica ::= expresionAritmetica operador expresionAritmetica
+					  | PARENTESISIZQ expresionAritmetica PARENTESISDCH
+					  | ID PARENTESISIZQ parametros_llamada PARENTESISDCH
+					  | ID PARENTESISIZQ PARENTESISDCH
+					  | ID AUTOINCREMENT
+					  | ID
+					  | NUM;
 
-
-dcha_expresionAritmetica ::= operador NUM dcha_expresionAritmetica
-			     | operador ID dcha_expresionAritmetica
-			     | operador PARENTESISIZQ NUM dcha_expresionAritmetica PARENTESISDCH
-			     | operador PARENTESISIZQ ID dcha_expresionAritmetica PARENTESISDCH
-                 | operador NUM
-			     | operador ID;
-
+expresionLogica ::= expresionAritmetica EQUAL expresionAritmetica
+				  | expresionAritmetica MINOR expresionAritmetica
+				  | expresionAritmetica AND expresionAritmetica
+				  | NOT expresionAritmetica;
+					  
 constante_simbolica ::= CTE ID NUM PUNTOCOMA;
 
 tipo ::= INT | VOID;
