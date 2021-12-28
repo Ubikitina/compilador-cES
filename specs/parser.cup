@@ -120,12 +120,25 @@ non terminal			asignacion;
 non terminal			operador;
 non terminal			operacion;
 non terminal 			dcha_operacion;
+non terminal			function;
+non terminal			parametros_function;
+non terminal			parametros_llamada;
 // ...
 
 
 // Declaracion de relaciones de precedencia
-precedence left     PLUS,
-                    PRODUCT;
+precedence left     PARENTESISIZQ,
+					PARENTESISDCH,
+					LLAVEIZQ,
+					LLAVEDCH,
+					AUTOINCREMENT,
+					NOT,
+					PRODUCT,
+					PLUS,
+					MINOR,
+					EQUAL,
+					AND;
+precedence right	ELSE;
 // ...
 
 // Declaración de reglas de produccion
@@ -146,14 +159,23 @@ program ::=
 
 axiom ::= programa_general;
 
-programa_general ::= constante_simbolica programa_general | mainFunction;
+programa_general ::= constante_simbolica programa_general 
+				   | function programa_general
+				   | mainFunction;
 
-mainFunction ::= VOID MAIN PARENTESISIZQ PARENTESISDCH LLAVEIZQ sentences RETURN PUNTOCOMA LLAVEDCH;
+mainFunction ::= VOID MAIN PARENTESISIZQ PARENTESISDCH LLAVEIZQ sentences LLAVEDCH;
+
+function ::= tipo ID PARENTESISIZQ parametros_function PARENTESISDCH LLAVEIZQ sentences LLAVEDCH;
+
+parametros_function ::= parametros_function COMA tipo ID
+					  | tipo ID;
 
 sentences ::= sentences printString 
             | sentences printInt 
             | sentences declaracion
             | sentences asignacion
+			| sentences RETURN PUNTOCOMA
+			| sentences RETURN ID PUNTOCOMA
             | epsilon;
 
 printString ::= WRITE PARENTESISIZQ STRING PARENTESISDCH PUNTOCOMA 
@@ -166,9 +188,18 @@ declaracion ::= tipo ID PUNTOCOMA;
 
 asignacion ::= ID ASSIGN operacion PUNTOCOMA
              | ID ASSIGN NUM PUNTOCOMA 
+             | ID ASSIGN ID PUNTOCOMA
              | ID ASSIGN ID AUTOINCREMENT PUNTOCOMA
+             | ID ASSIGN ID PARENTESISIZQ parametros_llamada PARENTESISDCH PUNTOCOMA
              | ID AUTOINCREMENT PUNTOCOMA
              | ID ASSIGNWITHSUM NUM PUNTOCOMA;
+             
+parametros_llamada ::= parametros_llamada COMA ID
+                     | parametros_llamada COMA NUM
+                     | parametros_llamada COMA STRING
+                     | ID
+                     | NUM
+                     | STRING;
 
 operacion ::= NUM dcha_operacion
 			| ID dcha_operacion
