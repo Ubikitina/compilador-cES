@@ -108,7 +108,7 @@ non terminal  			program;
 non terminal Axiom		axiom;
 
 non terminal            mainFunction;
-non terminal            sentences;
+non terminal            sentencias;
 non terminal            printString;
 non terminal            printInt;
 non terminal            epsilon;
@@ -124,6 +124,7 @@ non terminal			parametros_function;
 non terminal			parametros_llamada;
 non terminal			aux_declaracion;
 non terminal			expresionLogica;
+non terminal			if;
 // ...
 
 
@@ -164,21 +165,24 @@ programa_general ::= constante_simbolica programa_general
 				   | function programa_general
 				   | mainFunction;
 
-mainFunction ::= VOID MAIN PARENTESISIZQ PARENTESISDCH LLAVEIZQ sentences LLAVEDCH;
+mainFunction ::= VOID MAIN PARENTESISIZQ PARENTESISDCH LLAVEIZQ sentencias LLAVEDCH;
 
-function ::= tipo ID PARENTESISIZQ parametros_function PARENTESISDCH LLAVEIZQ sentences LLAVEDCH
-		   | tipo ID PARENTESISIZQ PARENTESISDCH LLAVEIZQ sentences LLAVEDCH;
+function ::= tipo ID PARENTESISIZQ parametros_function PARENTESISDCH LLAVEIZQ sentencias LLAVEDCH
+		   | tipo ID PARENTESISIZQ PARENTESISDCH LLAVEIZQ sentencias LLAVEDCH;
 
 parametros_function ::= parametros_function COMA tipo ID
 					  | tipo ID;
 
-sentences ::= sentences printString 
-            | sentences printInt 
-            | sentences declaracion
-            | sentences asignacion
-			| sentences RETURN PUNTOCOMA
-			| sentences RETURN ID PUNTOCOMA
-            | epsilon;
+sentencias ::= sentencias printString 
+             | sentencias printInt 
+             | sentencias declaracion
+             | sentencias asignacion
+             | sentencias expresionAritmetica PUNTOCOMA
+             | sentencias expresionLogica PUNTOCOMA
+             | sentencias if
+		 	 | sentencias RETURN PUNTOCOMA
+		 	 | sentencias RETURN ID PUNTOCOMA
+             | epsilon;
 
 printString ::= WRITE PARENTESISIZQ STRING PARENTESISDCH PUNTOCOMA 
               | WRITE PARENTESISIZQ ID PARENTESISDCH PUNTOCOMA;
@@ -198,8 +202,8 @@ aux_declaracion ::= COMA ID aux_declaracion
 
 asignacion ::= ID ASSIGN expresionAritmetica PUNTOCOMA
 			 | ID ASSIGN expresionLogica PUNTOCOMA
-             | ID AUTOINCREMENT PUNTOCOMA
-             | ID ASSIGNWITHSUM NUM PUNTOCOMA;
+             | ID ASSIGNWITHSUM expresionAritmetica PUNTOCOMA
+             | ID ASSIGNWITHSUM expresionLogica PUNTOCOMA;
              
 parametros_llamada ::= parametros_llamada COMA expresionAritmetica
                      | parametros_llamada COMA expresionLogica
@@ -220,6 +224,10 @@ expresionLogica ::= expresionAritmetica EQUAL expresionAritmetica
 				  | expresionAritmetica MINOR expresionAritmetica
 				  | expresionAritmetica AND expresionAritmetica
 				  | NOT expresionAritmetica;
+
+if ::= IF PARENTESISIZQ expresionLogica PARENTESISDCH LLAVEIZQ sentencias LLAVEDCH ELSE LLAVEIZQ sentencias LLAVEDCH
+	 | IF PARENTESISIZQ expresionLogica PARENTESISDCH LLAVEIZQ sentencias LLAVEDCH;
+
 					  
 constante_simbolica ::= CTE ID NUM PUNTOCOMA;
 
