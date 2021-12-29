@@ -115,7 +115,7 @@ non terminal            epsilon;
 non terminal            constante_simbolica;
 non terminal            programa_general;
 non terminal 			declaracion;
-non terminal			tipo;
+non terminal			tipo_funcion;
 non terminal			asignacion;
 non terminal			operador_aritmetico;
 non terminal			expresionAritmetica;
@@ -131,6 +131,10 @@ non terminal			mientras;
 non terminal			alternativa;
 non terminal			casos;
 non terminal			operador_logico;
+non terminal			variable_con_tipo;
+non terminal			variable;
+non terminal			vector;
+non terminal			creacion_tipo_vector;
 // ...
 
 
@@ -173,11 +177,11 @@ programa_general ::= constante_simbolica programa_general
 
 mainFunction ::= VOID MAIN PARENTESISIZQ PARENTESISDCH bloque;
 
-function ::= tipo ID PARENTESISIZQ parametros_function PARENTESISDCH bloque
-		   | tipo ID PARENTESISIZQ PARENTESISDCH bloque;
+function ::= tipo_funcion ID PARENTESISIZQ parametros_function PARENTESISDCH bloque
+		   | tipo_funcion ID PARENTESISIZQ PARENTESISDCH bloque;
 
-parametros_function ::= parametros_function COMA tipo ID
-					  | tipo ID;
+parametros_function ::= parametros_function COMA variable_con_tipo
+					  | variable_con_tipo;
 
 bloque ::= bloque LLAVEIZQ sentencias bloque sentencias LLAVEDCH
 		 | LLAVEIZQ sentencias bloque sentencias LLAVEDCH
@@ -188,11 +192,13 @@ una_sentencia ::= printString
              | printInt 
              | declaracion
              | asignacion
+             | creacion_tipo_vector
              | expresionAritmetica PUNTOCOMA
              | expresionLogica PUNTOCOMA
              | if
              | mientras
              | alternativa
+             | ID PARENTESISIZQ parametros_llamada PARENTESISDCH PUNTOCOMA
 		 	 | RETURN PUNTOCOMA
 		 	 | RETURN expresionAritmetica PUNTOCOMA
 		 	 | RETURN expresionLogica PUNTOCOMA;
@@ -200,26 +206,27 @@ una_sentencia ::= printString
 sentencias ::= sentencias una_sentencia
              | epsilon;
 
-printString ::= WRITE PARENTESISIZQ STRING PARENTESISDCH PUNTOCOMA 
-              | WRITE PARENTESISIZQ ID PARENTESISDCH PUNTOCOMA;
+printString ::= WRITE PARENTESISIZQ STRING PARENTESISDCH PUNTOCOMA
+			  | WRITE PARENTESISIZQ PARENTESISDCH PUNTOCOMA;
 
-printInt ::= WRITEINT PARENTESISIZQ NUM PARENTESISDCH PUNTOCOMA 
-           | WRITEINT PARENTESISIZQ ID PARENTESISDCH PUNTOCOMA;
+printInt ::= WRITEINT PARENTESISIZQ expresionAritmetica PARENTESISDCH PUNTOCOMA 
+           | WRITEINT PARENTESISIZQ expresionLogica PARENTESISDCH PUNTOCOMA
+           | WRITEINT PARENTESISIZQ PARENTESISDCH PUNTOCOMA;
 
-declaracion ::= tipo ID PUNTOCOMA
-			  | tipo ID aux_declaracion PUNTOCOMA
-			  | tipo ID ASSIGN NUM PUNTOCOMA
-			  | tipo ID ASSIGN NUM aux_declaracion PUNTOCOMA;
+declaracion ::= variable_con_tipo PUNTOCOMA
+			  | variable_con_tipo aux_declaracion PUNTOCOMA
+			  | variable_con_tipo ASSIGN NUM PUNTOCOMA
+			  | variable_con_tipo ASSIGN NUM aux_declaracion PUNTOCOMA;
 
-aux_declaracion ::= COMA ID aux_declaracion
-				  | COMA ID
-				  | COMA ID ASSIGN NUM aux_declaracion
-				  | COMA ID ASSIGN NUM;
+aux_declaracion ::= COMA variable aux_declaracion
+				  | COMA variable
+				  | COMA variable ASSIGN NUM aux_declaracion
+				  | COMA variable ASSIGN NUM;
 
-asignacion ::= ID ASSIGN expresionAritmetica PUNTOCOMA
-			 | ID ASSIGN expresionLogica PUNTOCOMA
-             | ID ASSIGNWITHSUM expresionAritmetica PUNTOCOMA
-             | ID ASSIGNWITHSUM expresionLogica PUNTOCOMA;
+asignacion ::= variable ASSIGN expresionAritmetica PUNTOCOMA
+			 | variable ASSIGN expresionLogica PUNTOCOMA
+             | variable ASSIGNWITHSUM expresionAritmetica PUNTOCOMA
+             | variable ASSIGNWITHSUM expresionLogica PUNTOCOMA;
              
 parametros_llamada ::= parametros_llamada COMA expresionAritmetica
                      | parametros_llamada COMA expresionLogica
@@ -232,8 +239,8 @@ expresionAritmetica ::= expresionAritmetica operador_aritmetico expresionAritmet
 					  | PARENTESISIZQ expresionAritmetica PARENTESISDCH
 					  | ID PARENTESISIZQ parametros_llamada PARENTESISDCH
 					  | ID PARENTESISIZQ PARENTESISDCH
-					  | ID AUTOINCREMENT
-					  | ID
+					  | variable AUTOINCREMENT
+					  | variable 
 					  | NUM;
 
 expresionLogica ::= expresionAritmetica operador_logico expresionAritmetica
@@ -263,10 +270,20 @@ casos ::= casos CASE NUM DOSPUNTOS bloque BREAK PUNTOCOMA
 					  
 constante_simbolica ::= CTE ID NUM PUNTOCOMA;
 
-tipo ::= INT | VOID;
+tipo_funcion ::= INT | VOID;
+
+variable ::= ID | vector;
+
+vector ::= ID CORCHETEIZQ expresionAritmetica CORCHETEDCH
+	     | ID CORCHETEIZQ expresionLogica CORCHETEDCH;
+	     
+creacion_tipo_vector ::= TYPE INT vector PUNTOCOMA;
+
+variable_con_tipo ::= INT ID | ID ID;
 
 operador_aritmetico ::= PLUS | PRODUCT;
 
 operador_logico ::= EQUAL | MINOR | AND;
 
 epsilon ::= ;
+
