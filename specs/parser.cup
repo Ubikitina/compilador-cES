@@ -68,7 +68,6 @@ terminal Token LLAVEIZQ;
 terminal Token LLAVEDCH;
 terminal Token PUNTOCOMA;
 terminal Token CASE;
-terminal Token CONSTANT;
 terminal Token BREAK;
 terminal Token INT;
 terminal Token WRITE;
@@ -95,7 +94,6 @@ terminal Token CORCHETEDCH;
 terminal Token STRING;
 terminal Token DOSPUNTOS;
 terminal Token COMA;
-terminal Token VECT;
 terminal Token CTE;
 
 
@@ -254,10 +252,8 @@ asignacion ::= variable ASSIGN expresionAritmetica PUNTOCOMA
              
 parametros_llamada ::= parametros_llamada COMA expresionAritmetica
                      | parametros_llamada COMA expresionLogica
-                     | parametros_llamada COMA STRING
                      | expresionAritmetica
-                     | expresionLogica
-                     | STRING;
+                     | expresionLogica;
 
 expresionAritmetica ::= expresionAritmetica operador_aritmetico expresionAritmetica
 					  | PARENTESISIZQ expresionAritmetica PARENTESISDCH
