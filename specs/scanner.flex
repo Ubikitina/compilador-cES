@@ -71,7 +71,6 @@ LETRA = [A-Za-z]
 DIGITO=[0-9]
 NUMERO = 0|[1-9]({DIGITO})*
 NUMERO_ERRONEO = (-{NUMERO}) | (-?(0+{NUMERO}) | (-?{NUMERO}*\.{NUMERO}+))
-VECTOR = \[NUMERO\]
 IDENTIFICADOR = {LETRA}({LETRA}|{DIGITO})*
 IDENTIFICADOR_ERRONEO = {NUMERO}({LETRA}|_)({LETRA}|_|{NUMERO})*
 ESPACIO_BLANCO=[ \t\r\n\f]
@@ -112,8 +111,7 @@ fin = "fin"{ESPACIO_BLANCO}
     "="                { return createToken (sym.ASSIGN); }
     "+="               { return createToken (sym.ASSIGNWITHSUM); }
     "+"                { return createToken (sym.PLUS); }
-    "caso"             { return createToken (sym.CASE); }    
-    "constante"        { return createToken (sym.CONSTANT); }    
+    "caso"             { return createToken (sym.CASE); }   
     "corte"            { return createToken (sym.BREAK); }    
     "entero"           { return createToken (sym.INT); }    
     "escribe"          { return createToken (sym.WRITE); }    
@@ -138,7 +136,6 @@ fin = "fin"{ESPACIO_BLANCO}
                            lexicalErrorManager.lexicalError (error);
                            System.exit(-1); //detenemos ejecución
 	                   }
-    {VECTOR}           { return createToken (sym.VECT); }
     {NUMERO_ERRONEO}   { 
 	                       LexicalError error = new LexicalError ("Número incorrecto.");
                            error.setLine (yyline + 1);
@@ -198,3 +195,4 @@ fin = "fin"{ESPACIO_BLANCO}
                        }
     [^]                {} //Ignoramos en caso de no coincidir con ningún patrón anteriormente listado.
 } //Aqui termina el estado CADENA_SIN_COMILLAS
+
