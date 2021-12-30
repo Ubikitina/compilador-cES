@@ -60,7 +60,6 @@ parser code {:
 // Declaracion de terminales
 
 terminal Token PLUS;
-terminal Token MINUS;
 terminal Token NUM;
 terminal Token ID;
 terminal Token PARENTESISIZQ;
@@ -107,20 +106,18 @@ terminal Token CTE;
 non terminal  			program;
 non terminal Axiom		axiom;
 
-non terminal            mainFunction;
+non terminal            funcionPrincipal;
 non terminal            sentencias;
 non terminal            printString;
 non terminal            printInt;
-non terminal            epsilon;
 non terminal            constante_simbolica;
-non terminal            programa_general;
+non terminal            inicio_programa_general;
 non terminal 			declaracion;
-non terminal			tipo_funcion;
 non terminal			asignacion;
 non terminal			operador_aritmetico;
 non terminal			expresionAritmetica;
-non terminal			function;
-non terminal			parametros_function;
+non terminal			funcion;
+non terminal			parametros_funcion;
 non terminal			parametros_llamada;
 non terminal			aux_declaracion;
 non terminal			expresionLogica;
@@ -135,7 +132,11 @@ non terminal			variable_con_tipo;
 non terminal			variable;
 non terminal			vector;
 non terminal			creacion_tipo_vector;
-// ...
+non terminal			programa_general;
+non terminal			lista_declaraciones;
+non terminal			lista_creacion_tipos;
+non terminal			bloque_parte2;
+non terminal			bloque_parte3;
 
 
 // Declaracion de relaciones de precedencia
@@ -151,7 +152,6 @@ precedence left     PARENTESISIZQ,
 					EQUAL,
 					AND;
 precedence right	ELSE;
-// ...
 
 // Declaración de reglas de produccion
 
@@ -169,30 +169,47 @@ program ::=
    :};
 
 
-axiom ::= programa_general;
+axiom ::= inicio_programa_general;
 
-programa_general ::= constante_simbolica programa_general 
-				   | function programa_general
-				   | mainFunction;
+inicio_programa_general ::= constante_simbolica inicio_programa_general 
+					      | programa_general;
 
-mainFunction ::= VOID MAIN PARENTESISIZQ PARENTESISDCH bloque;
+programa_general ::= funcion programa_general
+				   | declaracion programa_general
+				   | creacion_tipo_vector programa_general
+				   | funcionPrincipal;
 
-function ::= tipo_funcion ID PARENTESISIZQ parametros_function PARENTESISDCH bloque
-		   | tipo_funcion ID PARENTESISIZQ PARENTESISDCH bloque;
+funcionPrincipal ::= VOID MAIN PARENTESISIZQ PARENTESISDCH bloque;
 
-parametros_function ::= parametros_function COMA variable_con_tipo
+funcion ::= INT ID PARENTESISIZQ parametros_funcion PARENTESISDCH bloque
+		   | VOID  ID PARENTESISIZQ parametros_funcion PARENTESISDCH bloque
+		   | INT ID PARENTESISIZQ PARENTESISDCH bloque
+		   | VOID ID PARENTESISIZQ PARENTESISDCH bloque;
+
+parametros_funcion ::= parametros_funcion COMA variable_con_tipo
 					  | variable_con_tipo;
 
-bloque ::= bloque LLAVEIZQ sentencias bloque sentencias LLAVEDCH
-		 | LLAVEIZQ sentencias bloque sentencias LLAVEDCH
-		 | bloque LLAVEIZQ sentencias LLAVEDCH
-		 | LLAVEIZQ sentencias LLAVEDCH;
+bloque ::= bloque LLAVEIZQ lista_creacion_tipos bloque_parte2
+		 | bloque sentencias LLAVEIZQ lista_creacion_tipos bloque_parte2
+		 | LLAVEIZQ lista_creacion_tipos bloque_parte2
+		 | bloque LLAVEIZQ bloque_parte2
+		 | bloque sentencias LLAVEIZQ bloque_parte2
+		 | LLAVEIZQ bloque_parte2;
+		 
+bloque_parte2 ::= lista_declaraciones bloque_parte3
+			    | bloque_parte3;
+			    
+bloque_parte3 ::= sentencias bloque sentencias LLAVEDCH
+				| sentencias bloque LLAVEDCH
+				| bloque sentencias LLAVEDCH
+				| bloque LLAVEDCH
+				| sentencias LLAVEDCH
+				| LLAVEDCH;
+
 					  
 una_sentencia ::= printString 
-             | printInt 
-             | declaracion
+             | printInt
              | asignacion
-             | creacion_tipo_vector
              | expresionAritmetica PUNTOCOMA
              | expresionLogica PUNTOCOMA
              | if
@@ -204,7 +221,7 @@ una_sentencia ::= printString
 		 	 | RETURN expresionLogica PUNTOCOMA;
 
 sentencias ::= sentencias una_sentencia
-             | epsilon;
+             | una_sentencia;
 
 printString ::= WRITE PARENTESISIZQ STRING PARENTESISDCH PUNTOCOMA
 			  | WRITE PARENTESISIZQ PARENTESISDCH PUNTOCOMA;
@@ -215,13 +232,20 @@ printInt ::= WRITEINT PARENTESISIZQ expresionAritmetica PARENTESISDCH PUNTOCOMA
 
 declaracion ::= variable_con_tipo PUNTOCOMA
 			  | variable_con_tipo aux_declaracion PUNTOCOMA
-			  | variable_con_tipo ASSIGN NUM PUNTOCOMA
-			  | variable_con_tipo ASSIGN NUM aux_declaracion PUNTOCOMA;
+			  | variable_con_tipo ASSIGN expresionAritmetica PUNTOCOMA
+			  | variable_con_tipo ASSIGN expresionLogica PUNTOCOMA
+			  | variable_con_tipo ASSIGN expresionAritmetica aux_declaracion PUNTOCOMA
+			  | variable_con_tipo ASSIGN expresionLogica aux_declaracion PUNTOCOMA;
 
 aux_declaracion ::= COMA variable aux_declaracion
 				  | COMA variable
-				  | COMA variable ASSIGN NUM aux_declaracion
-				  | COMA variable ASSIGN NUM;
+				  | COMA variable ASSIGN expresionAritmetica aux_declaracion
+				  | COMA variable ASSIGN expresionLogica aux_declaracion
+				  | COMA variable ASSIGN expresionAritmetica
+				  | COMA variable ASSIGN expresionLogica;
+
+lista_declaraciones ::= lista_declaraciones declaracion
+					  | declaracion;
 
 asignacion ::= variable ASSIGN expresionAritmetica PUNTOCOMA
 			 | variable ASSIGN expresionLogica PUNTOCOMA
@@ -270,8 +294,6 @@ casos ::= casos CASE NUM DOSPUNTOS bloque BREAK PUNTOCOMA
 					  
 constante_simbolica ::= CTE ID NUM PUNTOCOMA;
 
-tipo_funcion ::= INT | VOID;
-
 variable ::= ID | vector;
 
 vector ::= ID CORCHETEIZQ expresionAritmetica CORCHETEDCH
@@ -279,11 +301,11 @@ vector ::= ID CORCHETEIZQ expresionAritmetica CORCHETEDCH
 	     
 creacion_tipo_vector ::= TYPE INT vector PUNTOCOMA;
 
+lista_creacion_tipos ::= creacion_tipo_vector lista_creacion_tipos
+					   | creacion_tipo_vector;
+
 variable_con_tipo ::= INT ID | ID ID;
 
 operador_aritmetico ::= PLUS | PRODUCT;
 
 operador_logico ::= EQUAL | MINOR | AND;
-
-epsilon ::= ;
-
