@@ -125,7 +125,7 @@ fin = "fin"{ESPACIO_BLANCO}
     "sino"             { return createToken (sym.ELSE); }    
     "tipo"             { return createToken (sym.TYPE); }    
     "vacio"            { return createToken (sym.VOID); } 
-    "#constante"	   { return createToken (sym.CTE); }
+    "#constante "	   { return createToken (sym.CTE); }
     "\""               { stringCount = stringCount+1; yybegin(CADENA_SIN_COMILLAS); }
     {IDENTIFICADOR}    { return createToken (sym.ID); }
     {IDENTIFICADOR_ERRONEO} { 
