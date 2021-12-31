@@ -135,6 +135,7 @@ non terminal			lista_declaraciones;
 non terminal			lista_creacion_tipos;
 non terminal			bloque_parte2;
 non terminal			bloque_parte3;
+non terminal			expresion;
 
 
 // Declaracion de relaciones de precedencia
@@ -203,20 +204,17 @@ bloque_parte3 ::= sentencias bloque sentencias LLAVEDCH
 				| bloque LLAVEDCH
 				| sentencias LLAVEDCH
 				| LLAVEDCH;
-
 					  
 una_sentencia ::= printString 
              | printInt
              | asignacion
-             | expresionAritmetica PUNTOCOMA
-             | expresionLogica PUNTOCOMA
+             | expresion PUNTOCOMA
              | if
              | mientras
              | alternativa
              | ID PARENTESISIZQ parametros_llamada PARENTESISDCH PUNTOCOMA
 		 	 | RETURN PUNTOCOMA
-		 	 | RETURN expresionAritmetica PUNTOCOMA
-		 	 | RETURN expresionLogica PUNTOCOMA;
+		 	 | RETURN expresion PUNTOCOMA;
 
 sentencias ::= sentencias una_sentencia
              | una_sentencia;
@@ -224,36 +222,29 @@ sentencias ::= sentencias una_sentencia
 printString ::= WRITE PARENTESISIZQ STRING PARENTESISDCH PUNTOCOMA
 			  | WRITE PARENTESISIZQ PARENTESISDCH PUNTOCOMA;
 
-printInt ::= WRITEINT PARENTESISIZQ expresionAritmetica PARENTESISDCH PUNTOCOMA 
-           | WRITEINT PARENTESISIZQ expresionLogica PARENTESISDCH PUNTOCOMA
+printInt ::= WRITEINT PARENTESISIZQ expresion PARENTESISDCH PUNTOCOMA
            | WRITEINT PARENTESISIZQ PARENTESISDCH PUNTOCOMA;
 
 declaracion ::= variable_con_tipo PUNTOCOMA
 			  | variable_con_tipo aux_declaracion PUNTOCOMA
-			  | variable_con_tipo ASSIGN expresionAritmetica PUNTOCOMA
-			  | variable_con_tipo ASSIGN expresionLogica PUNTOCOMA
-			  | variable_con_tipo ASSIGN expresionAritmetica aux_declaracion PUNTOCOMA
-			  | variable_con_tipo ASSIGN expresionLogica aux_declaracion PUNTOCOMA;
+			  | variable_con_tipo ASSIGN expresion PUNTOCOMA
+			  | variable_con_tipo ASSIGN expresion aux_declaracion PUNTOCOMA;
 
 aux_declaracion ::= COMA variable aux_declaracion
 				  | COMA variable
-				  | COMA variable ASSIGN expresionAritmetica aux_declaracion
-				  | COMA variable ASSIGN expresionLogica aux_declaracion
-				  | COMA variable ASSIGN expresionAritmetica
-				  | COMA variable ASSIGN expresionLogica;
+				  | COMA variable ASSIGN expresion aux_declaracion
+				  | COMA variable ASSIGN expresion;
 
 lista_declaraciones ::= lista_declaraciones declaracion
 					  | declaracion;
 
-asignacion ::= variable ASSIGN expresionAritmetica PUNTOCOMA
-			 | variable ASSIGN expresionLogica PUNTOCOMA
-             | variable ASSIGNWITHSUM expresionAritmetica PUNTOCOMA
-             | variable ASSIGNWITHSUM expresionLogica PUNTOCOMA;
+asignacion ::= variable ASSIGN expresion PUNTOCOMA
+             | variable ASSIGNWITHSUM expresion PUNTOCOMA;
              
-parametros_llamada ::= parametros_llamada COMA expresionAritmetica
-                     | parametros_llamada COMA expresionLogica
-                     | expresionAritmetica
-                     | expresionLogica;
+parametros_llamada ::= parametros_llamada COMA expresion
+                     | expresion;
+
+expresion ::= expresionAritmetica | expresionLogica;
 
 expresionAritmetica ::= expresionAritmetica operador_aritmetico expresionAritmetica
 					  | PARENTESISIZQ expresionAritmetica PARENTESISDCH
@@ -263,13 +254,9 @@ expresionAritmetica ::= expresionAritmetica operador_aritmetico expresionAritmet
 					  | variable 
 					  | NUM;
 
-expresionLogica ::= expresionAritmetica operador_logico expresionAritmetica
-				  | expresionLogica operador_logico expresionLogica
-				  | expresionAritmetica operador_logico expresionLogica
-				  | expresionLogica operador_logico expresionAritmetica
+expresionLogica ::= expresion operador_logico expresion
 				  | PARENTESISIZQ expresionLogica PARENTESISDCH
-				  | NOT expresionAritmetica
-				  | NOT expresionLogica;
+				  | NOT expresion;
 
 if ::= IF PARENTESISIZQ expresionLogica PARENTESISDCH bloque ELSE bloque
 	 | IF PARENTESISIZQ expresionLogica PARENTESISDCH bloque
@@ -292,8 +279,7 @@ constante_simbolica ::= CTE ID NUM PUNTOCOMA;
 
 variable ::= ID | vector;
 
-vector ::= ID CORCHETEIZQ expresionAritmetica CORCHETEDCH
-	     | ID CORCHETEIZQ expresionLogica CORCHETEDCH;
+vector ::= ID CORCHETEIZQ expresion CORCHETEDCH;
 	     
 creacion_tipo_vector ::= TYPE INT vector PUNTOCOMA;
 
