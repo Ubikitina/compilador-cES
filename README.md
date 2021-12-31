@@ -144,14 +144,29 @@ Ejemplo de la sintaxis para la creación del tipo:
 - `tam` es una constante literal numérica o simbólica que indica el número de elementos que contiene el vector.
 
 ## Declaración de variables
+Se utiliza la siguiente sintaxis:
+`nombre-tipo var1 [ = val1], var2 [ = val2], ...;`
+Donde:
+- `nombre-tipo` es el nombre primitivo del lenguaje o definido por el usuario.
+- `var1, var2,...` son identificadores para las variables creadas.
+- `val1, val2,...` son valores opcionales asignados.
 
 ## Declaración de bloques
-- Sentencias organizadas dentro de los delimitadores { y }.
+- Son una secuencia ordenada de instrucciones encapsuladas dentro de los delimitadores { y }.
 - La estructura sintáctica de los bloques es anidante.
-- Comienzan por una sección opcional de declaración de variables y continuan por una secuencia ordenada de sentencias que a su vez pueden contener a otros bloques.
+- Comienzan por una sección opcional de declaración de tipos, seguidas de una sección opcional de declaración de variables y continuan por una secuencia ordenada de sentencias que a su vez pueden contener a otros bloques.
 
 ## Declaración de funciones
-- 
+- Bloque encapsulado bajo un nombre.
+
+Ejemplo de la sintaxis:
+```
+tipo-retorno nombre (tipo1 param1, tipo2 param2,...){
+    /* declaración de tipos y variables locales */
+    /* sentencias */
+    devuelve expresión;
+}
+```
 
 # Código implementado en Flex y Cup
 
