@@ -139,17 +139,14 @@ non terminal			expresion;
 
 
 // Declaracion de relaciones de precedencia
-precedence left     PARENTESISIZQ,
-					PARENTESISDCH,
-					LLAVEIZQ,
-					LLAVEDCH,
-					AUTOINCREMENT,
-					NOT,
-					PRODUCT,
-					PLUS,
-					MINOR,
-					EQUAL,
-					AND;
+precedence left     AND;
+precedence left     EQUAL;
+precedence left     MINOR;
+precedence left     PLUS;
+precedence left     PRODUCT;
+precedence left     AUTOINCREMENT, NOT;
+precedence left     LLAVEIZQ, LLAVEDCH;
+precedence left     PARENTESISIZQ, PARENTESISDCH;
 precedence right	ELSE;
 
 // Declaración de reglas de produccion
@@ -270,10 +267,10 @@ alternativa ::= ALTERNATIVE PARENTESISIZQ expresionAritmetica PARENTESISDCH LLAV
 			  | ALTERNATIVE PARENTESISIZQ expresionAritmetica PARENTESISDCH LLAVEIZQ casos DEFAULT DOSPUNTOS una_sentencia BREAK PUNTOCOMA LLAVEDCH
 			  | ALTERNATIVE PARENTESISIZQ expresionAritmetica PARENTESISDCH LLAVEIZQ casos LLAVEDCH;
 
-casos ::= casos CASE NUM DOSPUNTOS bloque BREAK PUNTOCOMA
-		| casos CASE NUM DOSPUNTOS una_sentencia BREAK PUNTOCOMA
-		| CASE NUM DOSPUNTOS bloque BREAK PUNTOCOMA
-		| CASE NUM DOSPUNTOS una_sentencia BREAK PUNTOCOMA;
+casos ::= casos CASE expresionAritmetica DOSPUNTOS bloque BREAK PUNTOCOMA
+		| casos CASE expresionAritmetica DOSPUNTOS una_sentencia BREAK PUNTOCOMA
+		| CASE expresionAritmetica DOSPUNTOS bloque BREAK PUNTOCOMA
+		| CASE expresionAritmetica DOSPUNTOS una_sentencia BREAK PUNTOCOMA;
 					  
 constante_simbolica ::= CTE ID NUM PUNTOCOMA;
 
