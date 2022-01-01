@@ -28,11 +28,11 @@ Práctica de la asignatura Procesadores del Lenguaje I de la Universidad Naciona
     13. [Sentencia de control de flujo condicional ALTERNATIVAS](#27)
     14. [Sentencia de control de flujo iterativo MIENTRAS](#28)
     15. [Sentencias de salida](#29)
-4. Código implementado en Flex y Cup
-5. Herramientas utilizadas
-    1. JFlex
-    2. Cup
-6. Bibliografía
+4. [Código implementado en Flex y Cup](#30)
+5. [Herramientas utilizadas](#31)
+    1. [JFlex](#32)
+    2. [Cup](#33)
+6. [Bibliografía](#34)
 
 <a name="1"/>
 
@@ -359,16 +359,32 @@ mientras (expresionLogica)
     -  `escribeEnt(12);` o `escribeEnt(a);` recibe una expresión de tipo entero y muestra su resultado por la salida estándar.
 -  Ambos pueden no recibir parámetros, en ese caso no mostrarían nada (realizan un salto de línea).
 
+<a name="30"/>
+
 # Código implementado en Flex y Cup
+El código desarrollado es el siguiente:
+- [specs/scanner.flex](specs/scanner.flex): corresponde al analizador léxico implementado en Flex.
+- [specs/parser.cup](specs/parser.cup): corresponde al analizador sintáctico implementado en Cup.
+
+Además, el repositorio incluye juegos de prueba en el directorio [test/](test/).
+
+<a name="31"/>
 
 # Herramientas utilizadas
+
+<a name="32"/>
+
 ## JFlex
 Utilizado para especificar analizadores léxicos. Utiliza reglas que definen expresiones regulares como patrones en que encajar los caracteres que se van leyendo del archivo fuente, obteniendo tokens.
 Web: http://jflex.de/
 
+<a name="33"/>
+
 ## Cup
 Herramienta que permite especificar gramáticas formales facilitando el análisis sintáctico para obtener un analizador ascendente de tipo LALR. 
 Web: http://www2.cs.tum.edu/projects/cup/
+
+<a name="34"/>
 
 # Bibliografía
 Aho, A., Lam, M., Sethi, R., & Ullman, J. (2008). Compiladores (2nd ed.). Pearson Educación.
