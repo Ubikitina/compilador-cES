@@ -111,7 +111,6 @@ non terminal            sentencias;
 non terminal            printString;
 non terminal            printInt;
 non terminal            constante_simbolica;
-non terminal            inicio_programa_general;
 non terminal 			declaracion;
 non terminal			asignacion;
 non terminal			operador_aritmetico;
@@ -167,10 +166,8 @@ program ::=
    :};
 
 
-axiom ::= inicio_programa_general;
-
-inicio_programa_general ::= constante_simbolica inicio_programa_general 
-					      | programa_general;
+axiom ::= constante_simbolica axiom 
+		| programa_general;
 
 programa_general ::= funcion programa_general
 				   | declaracion programa_general
