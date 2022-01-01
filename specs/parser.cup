@@ -41,6 +41,8 @@ action code {:
 
 :}	
 
+// Parser code incluye declaraciones de las funciones manejadoras de los errores sintácticos.
+// Es llamado de forma automática por el parser al producrise un error.
 parser code {:
 	SyntaxErrorManager syntaxErrorManager = CompilerContext.getSyntaxErrorManager();
 	
@@ -175,7 +177,8 @@ programa_general ::= funcion programa_general
 				   | creacion_tipo_vector programa_general
 				   | funcionPrincipal;
 
-funcionPrincipal ::= VOID MAIN PARENTESISIZQ PARENTESISDCH bloque;
+funcionPrincipal ::= VOID MAIN PARENTESISIZQ PARENTESISDCH bloque
+				   | VOID error {: syntaxErrorManager.syntaxInfo("No se ha especificado la palabra principal en la función principal."); :} PARENTESISIZQ PARENTESISDCH bloque;
 
 funcion ::= INT ID PARENTESISIZQ parametros_funcion PARENTESISDCH bloque
 		   | VOID  ID PARENTESISIZQ parametros_funcion PARENTESISDCH bloque
@@ -217,7 +220,11 @@ sentencias ::= sentencias una_sentencia
              | una_sentencia;
 
 printString ::= WRITE PARENTESISIZQ STRING PARENTESISDCH PUNTOCOMA
-			  | WRITE PARENTESISIZQ PARENTESISDCH PUNTOCOMA;
+			  | WRITE PARENTESISIZQ PARENTESISDCH PUNTOCOMA
+			  | WRITE error {: syntaxErrorManager.syntaxInfo("No se ha especificado el paréntesis ( en la función escribe."); :} STRING PARENTESISDCH PUNTOCOMA
+			  | WRITE error {: syntaxErrorManager.syntaxInfo("No se ha especificado el paréntesis ( en la función escribe."); :} PARENTESISDCH PUNTOCOMA
+			  | WRITE PARENTESISIZQ STRING error {: syntaxErrorManager.syntaxInfo("No se ha especificado el paréntesis ) en la función escribe."); :} PUNTOCOMA
+			  | WRITE PARENTESISIZQ error {: syntaxErrorManager.syntaxInfo("No se ha especificado el paréntesis ) en la función escribe."); :} PUNTOCOMA;
 
 printInt ::= WRITEINT PARENTESISIZQ expresion PARENTESISDCH PUNTOCOMA
            | WRITEINT PARENTESISIZQ PARENTESISDCH PUNTOCOMA;
@@ -265,7 +272,9 @@ mientras ::= WHILE PARENTESISIZQ expresionLogica PARENTESISDCH bloque
 
 alternativa ::= ALTERNATIVE PARENTESISIZQ expresionAritmetica PARENTESISDCH LLAVEIZQ casos DEFAULT DOSPUNTOS bloque BREAK PUNTOCOMA LLAVEDCH
 			  | ALTERNATIVE PARENTESISIZQ expresionAritmetica PARENTESISDCH LLAVEIZQ casos DEFAULT DOSPUNTOS una_sentencia BREAK PUNTOCOMA LLAVEDCH
-			  | ALTERNATIVE PARENTESISIZQ expresionAritmetica PARENTESISDCH LLAVEIZQ casos LLAVEDCH;
+			  | ALTERNATIVE PARENTESISIZQ expresionAritmetica PARENTESISDCH LLAVEIZQ casos LLAVEDCH
+			  | ALTERNATIVE PARENTESISIZQ expresionAritmetica PARENTESISDCH LLAVEIZQ casos DEFAULT DOSPUNTOS bloque BREAK error {: syntaxErrorManager.syntaxInfo("No se ha especificado el punto y coma en la sentencia corte del caso pordefecto."); :} LLAVEDCH
+			  | ALTERNATIVE PARENTESISIZQ expresionAritmetica PARENTESISDCH LLAVEIZQ casos DEFAULT DOSPUNTOS una_sentencia BREAK error {: syntaxErrorManager.syntaxInfo("No se ha especificado el punto y coma en la sentencia corte del caso pordefecto."); :} LLAVEDCH;
 
 casos ::= casos CASE expresionAritmetica DOSPUNTOS bloque BREAK PUNTOCOMA
 		| casos CASE expresionAritmetica DOSPUNTOS una_sentencia BREAK PUNTOCOMA
