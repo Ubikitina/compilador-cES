@@ -13,7 +13,7 @@ import es.uned.lsi.compiler.lexical.ScannerIF;
 import es.uned.lsi.compiler.lexical.LexicalError;
 import es.uned.lsi.compiler.lexical.LexicalErrorManager;
 
-// incluir aqui, si es necesario otras importaciones
+
 
 %%
  
@@ -29,7 +29,7 @@ import es.uned.lsi.compiler.lexical.LexicalErrorManager;
 %implements ScannerIF
 %scanerror LexicalError
 
-// incluir aqui, si es necesario otras directivas
+
 %state COMENTARIO
 %state CADENA_SIN_COMILLAS
 
