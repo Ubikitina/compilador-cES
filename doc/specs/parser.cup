@@ -1,0 +1,296 @@
+// ******************************************
+// * parser.cup
+// * Asignatura: Procesadores de lenguajes 1
+// * Autor: ubikitina
+// * Curso: 2021-2022
+// ******************************************
+
+package compiler.syntax;
+
+// Declaracion de importaciones 
+//(No modificar las proporcionadas. Se pueden agregar mas)
+
+import java_cup.runtime.Symbol;
+import java.util.*;
+
+import es.uned.lsi.compiler.lexical.*;
+import es.uned.lsi.compiler.code.*;
+import es.uned.lsi.compiler.intermediate.*;
+import es.uned.lsi.compiler.semantic.*;
+import es.uned.lsi.compiler.semantic.symbol.*;
+import es.uned.lsi.compiler.semantic.type.*;
+import es.uned.lsi.compiler.syntax.*;
+
+import compiler.CompilerContext;
+import compiler.lexical.*;
+import compiler.syntax.nonTerminal.*;
+
+import compiler.semantic.symbol.*;
+import compiler.semantic.type.*;
+import compiler.intermediate.*;
+import compiler.code.*;
+
+// Declaracion del codigo de usuario
+
+action code {:
+	
+	SyntaxErrorManager   syntaxErrorManager   = CompilerContext.getSyntaxErrorManager();
+	SemanticErrorManager semanticErrorManager = CompilerContext.getSemanticErrorManager ();
+	ScopeManagerIF       scopeManager         = CompilerContext.getScopeManager ();
+	FinalCodeFactoryIF   finalCodeFactory     = CompilerContext.getFinalCodeFactory ();
+
+:}	
+
+// Parser code incluye declaraciones de las funciones manejadoras de los errores sintácticos.
+// Es llamado de forma automática por el parser al producrise un error.
+parser code {:
+	SyntaxErrorManager syntaxErrorManager = CompilerContext.getSyntaxErrorManager();
+	
+	public void syntax_error(Symbol symbol)
+	{ 
+	    Token token = (Token) symbol.value;
+	    syntaxErrorManager.syntaxError ("Error sintactico", token);	    
+	}
+		
+	public void unrecovered_syntax_error(java_cup.runtime.Symbol symbol)
+	{	
+	    Token token = (Token) symbol.value;
+	    syntaxErrorManager.syntaxFatalError ("Error fatal", token);
+	}
+:}
+
+// Declaracion de terminales
+
+terminal Token PLUS;
+terminal Token NUM;
+terminal Token ID;
+terminal Token PARENTESISIZQ;
+terminal Token PARENTESISDCH;
+terminal Token LLAVEIZQ;
+terminal Token LLAVEDCH;
+terminal Token PUNTOCOMA;
+terminal Token CASE;
+terminal Token BREAK;
+terminal Token INT;
+terminal Token WRITE;
+terminal Token WRITEINT;
+terminal Token ALTERNATIVE;
+terminal Token WHILE;
+terminal Token DEFAULT;
+terminal Token MAIN;
+terminal Token RETURN;
+terminal Token IF;
+terminal Token ELSE;
+terminal Token TYPE;
+terminal Token VOID;
+terminal Token PRODUCT;
+terminal Token MINOR;
+terminal Token EQUAL;
+terminal Token AND;
+terminal Token NOT;
+terminal Token AUTOINCREMENT;
+terminal Token ASSIGN;
+terminal Token ASSIGNWITHSUM;
+terminal Token CORCHETEIZQ;
+terminal Token CORCHETEDCH;
+terminal Token STRING;
+terminal Token DOSPUNTOS;
+terminal Token COMA;
+terminal Token CTE;
+
+
+
+// Declaracion de no terminales
+// no modificar los propuestos
+
+non terminal  			program;
+non terminal Axiom		axiom;
+
+non terminal            funcionPrincipal;
+non terminal            sentencias;
+non terminal            printString;
+non terminal            printInt;
+non terminal            constante_simbolica;
+non terminal 			declaracion;
+non terminal			asignacion;
+non terminal			operador_aritmetico;
+non terminal			expresionAritmetica;
+non terminal			funcion;
+non terminal			parametros_funcion;
+non terminal			parametros_llamada;
+non terminal			aux_declaracion;
+non terminal			expresionLogica;
+non terminal			if;
+non terminal			bloque;
+non terminal			una_sentencia;
+non terminal			mientras;
+non terminal			alternativa;
+non terminal			casos;
+non terminal			operador_logico;
+non terminal			variable_con_tipo;
+non terminal			variable;
+non terminal			vector;
+non terminal			creacion_tipo_vector;
+non terminal			programa_general;
+non terminal			lista_declaraciones;
+non terminal			lista_creacion_tipos;
+non terminal			bloque_parte2;
+non terminal			bloque_parte3;
+non terminal			expresion;
+
+
+// Declaracion de relaciones de precedencia
+precedence left     AND;
+precedence left     EQUAL;
+precedence left     MINOR;
+precedence left     PLUS;
+precedence left     PRODUCT;
+precedence left     AUTOINCREMENT, NOT;
+precedence left     LLAVEIZQ, LLAVEDCH;
+precedence left     PARENTESISIZQ, PARENTESISDCH;
+precedence right	ELSE;
+
+// Declaración de reglas de produccion
+
+
+start with program;
+
+program ::= 
+  {: 
+        syntaxErrorManager.syntaxInfo ("Starting parsing..."); 
+   :}
+  axiom:ax
+  {:   		
+  		
+  		syntaxErrorManager.syntaxInfo ("Parsing process ended.");
+   :};
+
+
+axiom ::= constante_simbolica axiom 
+		| programa_general;
+
+programa_general ::= funcion programa_general
+				   | declaracion programa_general
+				   | creacion_tipo_vector programa_general
+				   | funcionPrincipal;
+
+funcionPrincipal ::= VOID MAIN PARENTESISIZQ PARENTESISDCH bloque
+				   | VOID error {: syntaxErrorManager.syntaxInfo("No se ha especificado la palabra principal en la función principal."); :} PARENTESISIZQ PARENTESISDCH bloque;
+
+funcion ::= INT ID PARENTESISIZQ parametros_funcion PARENTESISDCH bloque
+		   | VOID  ID PARENTESISIZQ parametros_funcion PARENTESISDCH bloque
+		   | INT ID PARENTESISIZQ PARENTESISDCH bloque
+		   | VOID ID PARENTESISIZQ PARENTESISDCH bloque;
+
+parametros_funcion ::= parametros_funcion COMA variable_con_tipo
+					  | variable_con_tipo;
+
+bloque ::= bloque LLAVEIZQ lista_creacion_tipos bloque_parte2
+		 | bloque sentencias LLAVEIZQ lista_creacion_tipos bloque_parte2
+		 | LLAVEIZQ lista_creacion_tipos bloque_parte2
+		 | bloque LLAVEIZQ bloque_parte2
+		 | bloque sentencias LLAVEIZQ bloque_parte2
+		 | LLAVEIZQ bloque_parte2;
+		 
+bloque_parte2 ::= lista_declaraciones bloque_parte3
+			    | bloque_parte3;
+			    
+bloque_parte3 ::= sentencias bloque sentencias LLAVEDCH
+				| sentencias bloque LLAVEDCH
+				| bloque sentencias LLAVEDCH
+				| bloque LLAVEDCH
+				| sentencias LLAVEDCH
+				| LLAVEDCH;
+					  
+una_sentencia ::= printString 
+             | printInt
+             | asignacion
+             | expresion PUNTOCOMA
+             | if
+             | mientras
+             | alternativa
+             | ID PARENTESISIZQ parametros_llamada PARENTESISDCH PUNTOCOMA
+		 	 | RETURN PUNTOCOMA
+		 	 | RETURN expresion PUNTOCOMA;
+
+sentencias ::= sentencias una_sentencia
+             | una_sentencia;
+
+printString ::= WRITE PARENTESISIZQ STRING PARENTESISDCH PUNTOCOMA
+			  | WRITE PARENTESISIZQ PARENTESISDCH PUNTOCOMA
+			  | WRITE error {: syntaxErrorManager.syntaxInfo("No se ha especificado el paréntesis ( en la función escribe."); :} STRING PARENTESISDCH PUNTOCOMA
+			  | WRITE error {: syntaxErrorManager.syntaxInfo("No se ha especificado el paréntesis ( en la función escribe."); :} PARENTESISDCH PUNTOCOMA
+			  | WRITE PARENTESISIZQ STRING error {: syntaxErrorManager.syntaxInfo("No se ha especificado el paréntesis ) en la función escribe."); :} PUNTOCOMA
+			  | WRITE PARENTESISIZQ error {: syntaxErrorManager.syntaxInfo("No se ha especificado el paréntesis ) en la función escribe."); :} PUNTOCOMA;
+
+printInt ::= WRITEINT PARENTESISIZQ expresion PARENTESISDCH PUNTOCOMA
+           | WRITEINT PARENTESISIZQ PARENTESISDCH PUNTOCOMA;
+
+declaracion ::= variable_con_tipo PUNTOCOMA
+			  | variable_con_tipo aux_declaracion PUNTOCOMA
+			  | variable_con_tipo ASSIGN expresion PUNTOCOMA
+			  | variable_con_tipo ASSIGN expresion aux_declaracion PUNTOCOMA;
+
+aux_declaracion ::= COMA variable aux_declaracion
+				  | COMA variable
+				  | COMA variable ASSIGN expresion aux_declaracion
+				  | COMA variable ASSIGN expresion;
+
+lista_declaraciones ::= lista_declaraciones declaracion
+					  | declaracion;
+
+asignacion ::= variable ASSIGN expresion PUNTOCOMA
+             | variable ASSIGNWITHSUM expresion PUNTOCOMA;
+             
+parametros_llamada ::= parametros_llamada COMA expresion
+                     | expresion;
+
+expresion ::= expresionAritmetica | expresionLogica;
+
+expresionAritmetica ::= expresionAritmetica operador_aritmetico expresionAritmetica
+					  | PARENTESISIZQ expresionAritmetica PARENTESISDCH
+					  | ID PARENTESISIZQ parametros_llamada PARENTESISDCH
+					  | ID PARENTESISIZQ PARENTESISDCH
+					  | variable AUTOINCREMENT
+					  | variable 
+					  | NUM;
+
+expresionLogica ::= expresion operador_logico expresion
+				  | PARENTESISIZQ expresionLogica PARENTESISDCH
+				  | NOT expresion;
+
+if ::= IF PARENTESISIZQ expresionLogica PARENTESISDCH bloque ELSE bloque
+	 | IF PARENTESISIZQ expresionLogica PARENTESISDCH bloque
+	 | IF PARENTESISIZQ expresionLogica PARENTESISDCH una_sentencia
+	 | IF PARENTESISIZQ expresionLogica PARENTESISDCH una_sentencia ELSE una_sentencia;
+	 
+mientras ::= WHILE PARENTESISIZQ expresionLogica PARENTESISDCH bloque
+		   | WHILE PARENTESISIZQ expresionLogica PARENTESISDCH una_sentencia;
+
+alternativa ::= ALTERNATIVE PARENTESISIZQ expresionAritmetica PARENTESISDCH LLAVEIZQ casos DEFAULT DOSPUNTOS bloque BREAK PUNTOCOMA LLAVEDCH
+			  | ALTERNATIVE PARENTESISIZQ expresionAritmetica PARENTESISDCH LLAVEIZQ casos DEFAULT DOSPUNTOS una_sentencia BREAK PUNTOCOMA LLAVEDCH
+			  | ALTERNATIVE PARENTESISIZQ expresionAritmetica PARENTESISDCH LLAVEIZQ casos LLAVEDCH
+			  | ALTERNATIVE PARENTESISIZQ expresionAritmetica PARENTESISDCH LLAVEIZQ casos DEFAULT DOSPUNTOS bloque BREAK error {: syntaxErrorManager.syntaxInfo("No se ha especificado el punto y coma en la sentencia corte del caso pordefecto."); :} LLAVEDCH
+			  | ALTERNATIVE PARENTESISIZQ expresionAritmetica PARENTESISDCH LLAVEIZQ casos DEFAULT DOSPUNTOS una_sentencia BREAK error {: syntaxErrorManager.syntaxInfo("No se ha especificado el punto y coma en la sentencia corte del caso pordefecto."); :} LLAVEDCH;
+
+casos ::= casos CASE expresionAritmetica DOSPUNTOS bloque BREAK PUNTOCOMA
+		| casos CASE expresionAritmetica DOSPUNTOS una_sentencia BREAK PUNTOCOMA
+		| CASE expresionAritmetica DOSPUNTOS bloque BREAK PUNTOCOMA
+		| CASE expresionAritmetica DOSPUNTOS una_sentencia BREAK PUNTOCOMA;
+					  
+constante_simbolica ::= CTE ID NUM PUNTOCOMA;
+
+variable ::= ID | vector;
+
+vector ::= ID CORCHETEIZQ expresion CORCHETEDCH;
+	     
+creacion_tipo_vector ::= TYPE INT vector PUNTOCOMA;
+
+lista_creacion_tipos ::= creacion_tipo_vector lista_creacion_tipos
+					   | creacion_tipo_vector;
+
+variable_con_tipo ::= INT ID | ID ID;
+
+operador_aritmetico ::= PLUS | PRODUCT;
+
+operador_logico ::= EQUAL | MINOR | AND;
